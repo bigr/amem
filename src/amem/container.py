@@ -7,7 +7,7 @@ all component instances and their dependencies following SOLID principles.
 from dependency_injector import containers, providers
 from dependency_injector.wiring import Provide, inject
 
-from amem.core.interfaces import IMemoryStore, IExpectationMaximizer
+from amem.core.interfaces import MemoryStore as MemoryStoreProtocol, ExpectationMaximizer as EMProtocol
 from amem.core.memory import MemoryStore
 from amem.core.em import ExpectationMaximizer
 from amem.services.amem_service import AmemService
@@ -24,13 +24,13 @@ class Container(containers.DeclarativeContainer):
     config = providers.Configuration()
 
     # Core components
-    memory_store: providers.Provider[IMemoryStore] = providers.Singleton(
+    memory_store: providers.Provider[MemoryStoreProtocol] = providers.Singleton(
         MemoryStore,
         capacity=config.memory.capacity.as_(int).provided.or_(1000),
         embedding_dim=config.memory.embedding_dim.as_(int).provided.or_(128),
     )
 
-    expectation_maximizer: providers.Provider[IExpectationMaximizer] = providers.Singleton(
+    expectation_maximizer: providers.Provider[EMProtocol] = providers.Singleton(
         ExpectationMaximizer,
         max_iterations=config.em.max_iterations.as_(int).provided.or_(100),
         tolerance=config.em.tolerance.as_(float).provided.or_(1e-6),
