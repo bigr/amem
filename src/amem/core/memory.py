@@ -1,17 +1,16 @@
 """Memory store implementation for AMEM associative memory.
 
-This module provides the concrete implementation of the IMemoryStore interface
+This module provides the concrete implementation of the MemoryStore protocol
 using numpy arrays for efficient storage and similarity computation.
 """
 
 import numpy as np
 from scipy.spatial.distance import cosine
 
-from amem.core.interfaces import IMemoryStore
-from amem.types import MemoryResults, VectorArray
+from amem.types import MemoryEntry, MemoryResults, VectorArray
 
 
-class MemoryStore(IMemoryStore):
+class MemoryStore:
     """Concrete implementation of associative memory storage.
     
     This class provides efficient storage and retrieval of key-value pairs
@@ -77,15 +76,16 @@ class MemoryStore(IMemoryStore):
         if not self._keys:
             return []
             
-        similarities = []
+        entries = []
         for i, key in enumerate(self._keys):
             # Calculate cosine similarity (1 - cosine distance)
             similarity = 1.0 - cosine(query, key)
-            similarities.append((key, self._values[i], similarity))
+            entry = MemoryEntry(key=key, value=self._values[i], similarity=similarity)
+            entries.append(entry)
         
         # Sort by similarity (highest first) and return top k
-        similarities.sort(key=lambda x: x[2], reverse=True)
-        return similarities[:k]
+        entries.sort(key=lambda x: x.similarity, reverse=True)
+        return entries[:k]
 
     def update(self, key: VectorArray, value: VectorArray) -> None:
         """Update an existing memory entry.

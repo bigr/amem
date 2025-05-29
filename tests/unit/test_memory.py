@@ -27,10 +27,10 @@ class TestMemoryStore:
         results = store.retrieve(key)
         assert len(results) == 1
         
-        retrieved_key, retrieved_value, similarity = results[0]
-        np.testing.assert_array_almost_equal(retrieved_key, key)
-        np.testing.assert_array_almost_equal(retrieved_value, value)
-        assert similarity == pytest.approx(1.0, abs=1e-6)
+        entry = results[0]
+        np.testing.assert_array_almost_equal(entry.key, key)
+        np.testing.assert_array_almost_equal(entry.value, value)
+        assert entry.similarity == pytest.approx(1.0, abs=1e-6)
 
     def test_capacity_limit(self) -> None:
         """Test that capacity limit is enforced."""
@@ -70,7 +70,7 @@ class TestMemoryStore:
         
         assert len(results) == 2
         # Results should be sorted by similarity (highest first)
-        assert results[0][2] >= results[1][2]
+        assert results[0].similarity >= results[1].similarity
 
     def test_update_existing(self) -> None:
         """Test updating existing memory entries."""
@@ -84,8 +84,8 @@ class TestMemoryStore:
         store.update(key, updated_value)
         
         results = store.retrieve(key)
-        _, retrieved_value, _ = results[0]
-        np.testing.assert_array_almost_equal(retrieved_value, updated_value)
+        entry = results[0]
+        np.testing.assert_array_almost_equal(entry.value, updated_value)
 
     def test_clear_memory(self) -> None:
         """Test clearing all memory entries."""
